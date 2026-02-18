@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonImg, IonCard, IonCardContent, IonCardHeader, IonCardTitle, Platform } from '@ionic/angular/standalone';
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Filesystem } from '@capacitor/filesystem';
+import { FileViewer } from '@capacitor/file-viewer';
 import { CommonModule } from '@angular/common';
 
 interface LocalFile {
@@ -9,6 +10,8 @@ interface LocalFile {
   data: string;
   mimeType: string;
   imagePath: string;
+  webPath?: string;
+  nativePath?: string;
 }
 
 @Component({
@@ -47,7 +50,9 @@ export class HomePage {
           name: fileName,
           data: base64Data,
           mimeType: `image/${image.format}`,
-          imagePath
+          imagePath,
+          webPath: image.webPath,
+          nativePath: image.path
         };
 
         console.log('Image processed:', this.capturedImage);
@@ -82,7 +87,9 @@ export class HomePage {
           name: fileName,
           data: base64Data,
           mimeType: `image/${image.format}`,
-          imagePath
+          imagePath,
+          webPath: image.webPath,
+          nativePath: image.path
         };
 
         console.log('Image processed:', this.capturedImage);
@@ -93,18 +100,58 @@ export class HomePage {
     }
   }
 
+  async openInNativeViewer() {
+    if (!this.capturedImage?.nativePath) {
+      this.errorMessage = 'No native path available for file viewer';
+      return;
+    }
+
+    if (!this.platform.is('hybrid')) {
+      this.errorMessage = 'File viewer only works on native apps';
+      return;
+    }
+
+    try {
+      console.log('Opening file in native viewer:', this.capturedImage.nativePath);
+      console.log('MIME type:', this.capturedImage.mimeType);
+
+      await FileViewer.openDocumentFromLocalPath({
+        path: this.capturedImage.nativePath
+      });
+
+      console.log('File viewer opened successfully - Check if colors look correct in native viewer!');
+    } catch (error) {
+      console.error('Error opening file viewer:', error);
+      this.errorMessage = `File viewer error: ${error}`;
+    }
+  }
+
   private async readAsBase64(photo: Photo): Promise<string> {
     if (this.platform.is('hybrid')) {
       // Running on mobile device
+      console.log('Reading file from path:', photo.path);
+      console.log('Photo format:', photo.format);
+      console.log('Photo exif:', (photo as any).exif);
+
       const file = await Filesystem.readFile({
         path: photo.path!,
       });
+
+      console.log('File data length:', typeof file.data === 'string' ? file.data.length : 'Not a string');
+      console.log('File data type:', typeof file.data);
+
       const base64Data = `data:image/${photo.format};base64,${file.data}`;
+
+      // Log first 100 chars of base64 to check format
+      console.log('Base64 prefix:', base64Data.substring(0, 100));
+
       return base64Data;
     } else {
       // Running in browser
       const response = await fetch(photo.webPath!);
       const blob = await response.blob();
+      console.log('Blob type:', blob.type);
+      console.log('Blob size:', blob.size);
       return await this.convertBlobToBase64(blob) as string;
     }
   }
