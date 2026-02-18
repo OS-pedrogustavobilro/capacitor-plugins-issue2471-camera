@@ -1,11 +1,6 @@
 #container {
   text-align: center;
-
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  padding-bottom: 40px;
 }
 
 #container strong {
@@ -24,4 +19,9 @@
 
 #container a {
   text-decoration: none;
+}
+
+ion-img {
+  max-width: 100%;
+  height: auto;
 }

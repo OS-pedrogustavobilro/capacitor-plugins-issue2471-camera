@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Blank
+      Camera Issue #2471
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -9,12 +9,68 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
+      <ion-title size="large">Camera Test</ion-title>
     </ion-toolbar>
   </ion-header>
 
   <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Test Camera Plugin Issue</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>
+          This app reproduces the issue where photos captured with @capacitor/camera
+          appear with green/red color tints when converting from Uri to Base64.
+        </p>
+        <p>
+          <strong>Issue:</strong> <a href="https://github.com/ionic-team/capacitor-plugins/issues/2471" target="_blank">
+            capacitor-plugins#2471
+          </a>
+        </p>
+      </ion-card-content>
+    </ion-card>
+
+    <div style="padding: 20px;">
+      <ion-button expand="block" (click)="takePicture()">
+        Take Picture from Camera
+      </ion-button>
+
+      <ion-button expand="block" (click)="selectFromGallery()" color="secondary">
+        Select from Gallery
+      </ion-button>
+    </div>
+
+    @if (errorMessage) {
+      <ion-card color="danger">
+        <ion-card-content>
+          {{ errorMessage }}
+        </ion-card-content>
+      </ion-card>
+    }
+
+    @if (capturedImage) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Captured Image</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p style="margin-bottom: 8px;"><strong>File name:</strong> {{ capturedImage.name }}</p>
+          <p style="margin-bottom: 8px;"><strong>MIME type:</strong> {{ capturedImage.mimeType }}</p>
+          <p style="margin-bottom: 20px; word-break: break-all;"><strong>Path:</strong> {{ capturedImage.imagePath }}</p>
+
+          <div style="margin-top: 20px;">
+            <p style="margin-bottom: 12px;"><strong>Image display (check for color tint):</strong></p>
+            <ion-img [src]="capturedImage.data" style="border: 1px solid #ddd; border-radius: 8px;"></ion-img>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    }
+
+    @if (!capturedImage && !errorMessage) {
+      <div style="text-align: center; padding: 40px; color: #666;">
+        <p>No image captured yet. Click a button above to test the camera.</p>
+      </div>
+    }
   </div>
 </ion-content>
