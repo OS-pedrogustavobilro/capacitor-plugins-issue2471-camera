@@ -1,0 +1,7 @@
+{
+  "name": "capacitor-plugins-issue2471-camera",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
